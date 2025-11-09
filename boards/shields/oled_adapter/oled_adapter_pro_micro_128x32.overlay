@@ -1,10 +1,30 @@
 /*
- * Copyright (c) 2022 The ZMK Contributors
+ * Copyright (c) 2025 The ZMK Contributors
  *
  * SPDX-License-Identifier: MIT
  */
 
-/delete-node/ &oled;
+/*
+ * 1. checks if the label "oled" was defined on the shields/boards and if so
+ *    disables it. It is a simple but better implementation than
+ *    "/delete-node/ &oled;" because it adds oled_xxx from scratch, that is,
+ *    even "if the node oled" did not exist before
+ * 2. Macros like #if defined(DT_NODELABEL_oled) do not require any #include in
+ * the .overlay or .dts files. the build system automatically defines them in
+ * the preprocessor before compiling the devicetree.
+ * 3. ref1: https://docs.zephyrproject.org/apidoc/latest/group__devicetree-generic-id.html
+ * 4. ref2: nvim zmk/zephyr/include/zephyr/devicetree.h
+ * test:
+ *       grep -n "zephyr,display" zmk/build/zephyr/zephyr.dts
+ *       zephyr,display = &oled_128x128;
+ */
+
+// /delete-node/ &oled;
+#if defined(DT_NODELABEL_oled)
+&oled {
+    status = "disabled";
+};
+#endif
 
 &pro_micro_i2c {
     status = "okay";
